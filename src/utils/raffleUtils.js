@@ -26,19 +26,19 @@ export const categorizeRaffles = (raffles) => {
     raffle.stateNum === 1 && !isDurationElapsed(raffle)
   );
   
-  // Raffles whose duration has elapsed go to ended regardless of contract state
+  // Ended: stateNum === 2 (regardless of duration)
   const ended = raffles.filter(raffle => 
-    isDurationElapsed(raffle) && 
-    raffle.stateNum !== 3 && 
-    raffle.stateNum !== 4 // Not completed or all prizes claimed
+    raffle.stateNum === 2
   );
   
+  // Drawing: stateNum === 3 (regardless of duration)
   const drawing = raffles.filter(raffle => 
-    raffle.stateNum === 2 && !isDurationElapsed(raffle)
+    raffle.stateNum === 3
   );
   
+  // Completed: stateNum === 4 or 7
   const completed = raffles.filter(raffle => 
-    (raffle.stateNum === 3 || raffle.stateNum === 4) // Completed or all prizes claimed
+    (raffle.stateNum === 4 || raffle.stateNum === 7)
   );
 
   return { pending, active, ended, drawing, completed };

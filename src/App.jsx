@@ -12,7 +12,6 @@ import WhitelistRafflePage from './pages/WhitelistRafflePage';
 import NFTPrizedRafflePage from './pages/NFTPrizedRafflePage';
 import TokenGiveawayRafflePage from './pages/TokenGiveawayRafflePage';
 import RafflesByStatePage from './pages/RafflesByStatePage';
-import TestSocialFeatures from './components/TestSocialFeatures';
 import './App.css';
 
 function App() {
@@ -38,7 +37,6 @@ function App() {
                   <Route path="/nft-prized-raffles" element={<NFTPrizedRafflePage />} />
                   <Route path="/token-giveaway-raffles" element={<TokenGiveawayRafflePage />} />
                   <Route path="/raffles/:state" element={<RafflesByStatePage />} />
-                <Route path="/test-social" element={<TestSocialFeatures />} />
                 </Routes>
               </main>
               <Toaster />

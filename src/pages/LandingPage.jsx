@@ -540,8 +540,8 @@ const LandingPage = () => {
       <div className="mt-16">
         <RaffleSection title="Active Raffles" raffles={active} icon={Clock} stateKey="active" />
         <RaffleSection title="Pending Raffles" raffles={pending} icon={Users} stateKey="pending" />
-        <RaffleSection title="Drawing Phase" raffles={drawing} icon={Trophy} stateKey="drawing" />
         <RaffleSection title="Ended Raffles" raffles={ended} icon={Clock} stateKey="ended" />
+        <RaffleSection title="Drawing Phase" raffles={drawing} icon={Trophy} stateKey="drawing" />
         <RaffleSection title="Completed Raffles" raffles={completed} icon={Ticket} stateKey="completed" />
       </div>
 

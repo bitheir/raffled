@@ -5,8 +5,6 @@ import { useContract } from '../contexts/ContractContext';
 import { ethers } from 'ethers';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import SocialTaskCreator from '../components/SocialTaskCreator';
-import { SocialTaskService } from '../lib/socialTaskService';
 import { Switch } from '../components/ui/switch';
 import { Label } from '../components/ui/label';
 import { toast } from '../components/ui/sonner';
@@ -18,8 +16,6 @@ function ERC1155DropForm() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     collectionAddress: '',
@@ -35,10 +31,6 @@ function ERC1155DropForm() {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -237,34 +229,6 @@ function ERC1155DropForm() {
           />
         </div>
         
-        {/* Social Media Tasks Toggle */}
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-
-        {/* Social Media Tasks Section */}
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator 
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                // Placeholder: show tasks in toast for now
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-                // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-              }}
-            />
-          </div>
-        )}
-
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -284,8 +248,6 @@ const PrizedRaffleForm = () => {
   const { connected, address, provider } = useWallet();
   const { contracts, executeTransaction } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     startTime: '',
@@ -311,10 +273,6 @@ const PrizedRaffleForm = () => {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -407,21 +365,6 @@ const PrizedRaffleForm = () => {
       }
 
       if (result.success) {
-        // Save social media tasks to database
-        if (socialTasks.length > 0) {
-          try {
-            const taskResult = await SocialTaskService.createRaffleTasks(
-              result.raffleAddress || 'pending',
-              socialTasks
-            );
-            if (!taskResult.success) {
-              console.warn('Failed to save social media tasks:', taskResult.error);
-            }
-          } catch (taskError) {
-            console.warn('Error saving social media tasks:', taskError);
-          }
-        }
-
         toast.success('Prized raffle created successfully!');
         setFormData({
           name: '',
@@ -444,7 +387,6 @@ const PrizedRaffleForm = () => {
           maxSupply: '',
           royaltyPercentage: ''
         });
-        setSocialTasks([]);
       } else {
         throw new Error(result.error);
       }
@@ -720,34 +662,6 @@ const PrizedRaffleForm = () => {
           )}
         </div>
 
-        {/* Social Media Tasks Toggle */}
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-
-        {/* Social Media Tasks Section */}
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator 
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                // Placeholder: show tasks in toast for now
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-                // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-              }}
-            />
-          </div>
-        )}
-
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -766,8 +680,6 @@ const NonPrizedRaffleForm = () => {
   const { connected, address } = useWallet();
   const { contracts, executeTransaction } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     startTime: '',
@@ -779,10 +691,6 @@ const NonPrizedRaffleForm = () => {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -929,34 +837,6 @@ const NonPrizedRaffleForm = () => {
           </div>
         </div>
 
-        {/* Social Media Tasks Toggle */}
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-
-        {/* Social Media Tasks Section */}
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator 
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                // Placeholder: show tasks in toast for now
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-                // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-              }}
-            />
-          </div>
-        )}
-
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -975,8 +855,6 @@ const WhitelistRaffleForm = () => {
   const { connected, address } = useWallet();
   const { contracts, executeTransaction } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     startTime: '',
@@ -988,10 +866,6 @@ const WhitelistRaffleForm = () => {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -1133,34 +1007,6 @@ const WhitelistRaffleForm = () => {
           </div>
         </div>
 
-        {/* Social Media Tasks Toggle */}
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-
-        {/* Social Media Tasks Section */}
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator 
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                // Placeholder: show tasks in toast for now
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-                // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-              }}
-            />
-          </div>
-        )}
-
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -1179,8 +1025,6 @@ const NewERC721DropForm = () => {
   const { connected, address, provider } = useWallet();
   const { contracts, executeTransaction } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     startTime: '',
@@ -1202,10 +1046,6 @@ const NewERC721DropForm = () => {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -1460,34 +1300,6 @@ const NewERC721DropForm = () => {
           )}
         </div>
         
-        {/* Social Media Tasks Toggle */}
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-
-        {/* Social Media Tasks Section */}
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator 
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                // Placeholder: show tasks in toast for now
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-                // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-              }}
-            />
-          </div>
-        )}
-
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -1506,8 +1318,6 @@ function ExistingERC721DropForm() {
   const { connected, address, provider } = useWallet();
   const { contracts, executeTransaction } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     collection: '',
@@ -1521,10 +1331,6 @@ function ExistingERC721DropForm() {
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -1685,34 +1491,6 @@ function ExistingERC721DropForm() {
             required
           />
         </div>
-        {/* Social Media Tasks Toggle */}
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-
-        {/* Social Media Tasks Section */}
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator 
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                // Placeholder: show tasks in toast for now
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-                // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-              }}
-            />
-          </div>
-        )}
-
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -1731,8 +1509,6 @@ function ExistingERC1155DropForm() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     collectionAddress: '',
@@ -1748,10 +1524,6 @@ function ExistingERC1155DropForm() {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -1931,28 +1703,6 @@ function ExistingERC1155DropForm() {
             />
           </div>
         </div>
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-              }}
-            />
-          </div>
-        )}
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -2157,8 +1907,6 @@ function LuckySaleERC721Form() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     collectionAddress: '',
@@ -2173,10 +1921,6 @@ function LuckySaleERC721Form() {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -2362,35 +2106,6 @@ function LuckySaleERC721Form() {
             required
           />
         </div>
-
-        {/* Social Media Tasks Toggle */}
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-
-        {/* Social Media Tasks Section */}
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator 
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                // Placeholder: show tasks in toast for now
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-                // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-              }}
-            />
-          </div>
-        )}
-
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -2410,8 +2125,6 @@ function LuckySaleERC1155Form() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     collectionAddress: '',
@@ -2427,10 +2140,6 @@ function LuckySaleERC1155Form() {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -2628,47 +2337,6 @@ function LuckySaleERC1155Form() {
             required
           />
         </div>
-        {/* Social Media Tasks Section */}
-        <div className="mt-8">
-          <SocialTaskCreator 
-            onTasksChange={handleSocialTasksChange}
-            initialTasks={socialTasks}
-            visible={showSocialTasks}
-            onSubmit={(tasks) => {
-              // Placeholder: show tasks in toast for now
-              toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-              // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-            }}
-          />
-        </div>
-
-        {/* Social Media Tasks Toggle */}
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator 
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                // Placeholder: show tasks in toast for now
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-                // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-              }}
-            />
-          </div>
-        )}
-
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -2688,8 +2356,6 @@ function ETHGiveawayForm() {
   const { connected, address, provider } = useWallet();
   const { contracts, executeTransaction } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     ethAmount: '',
@@ -2702,10 +2368,6 @@ function ETHGiveawayForm() {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -2767,7 +2429,6 @@ function ETHGiveawayForm() {
           winnersCount: '',
           maxTicketsPerParticipant: ''
         });
-        setSocialTasks([]);
       } else {
         throw new Error(result.error);
       }
@@ -2860,35 +2521,6 @@ function ETHGiveawayForm() {
             />
           </div>
         </div>
-
-        {/* Social Media Tasks Toggle */}
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-
-        {/* Social Media Tasks Section */}
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator 
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                // Placeholder: show tasks in toast for now
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-                // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-              }}
-            />
-          </div>
-        )}
-
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -2908,8 +2540,6 @@ function ERC20GiveawayForm() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     tokenAddress: '',
@@ -2923,10 +2553,6 @@ function ERC20GiveawayForm() {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -3001,7 +2627,6 @@ function ERC20GiveawayForm() {
           winnersCount: '',
           maxTicketsPerParticipant: ''
         });
-        setSocialTasks([]);
     } catch (error) {
       console.error('Error creating raffle:', error);
       toast.error(extractRevertReason(error));
@@ -3102,35 +2727,6 @@ function ERC20GiveawayForm() {
             />
           </div>
         </div>
-
-        {/* Social Media Tasks Toggle */}
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-
-        {/* Social Media Tasks Section */}
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator 
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                // Placeholder: show tasks in toast for now
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-                // In production, you would call SocialTaskService.createRaffleTasks(raffleAddress, tasks)
-              }}
-            />
-          </div>
-        )}
-
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -3239,8 +2835,6 @@ function NewERC1155DropForm() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
   const [loading, setLoading] = useState(false);
-  const [socialTasks, setSocialTasks] = useState([]);
-  const [showSocialTasks, setShowSocialTasks] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     startTime: '',
@@ -3264,10 +2858,6 @@ function NewERC1155DropForm() {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialTasksChange = (tasks) => {
-    setSocialTasks(tasks);
   };
 
   const handleSubmit = async (e) => {
@@ -3543,28 +3133,6 @@ function NewERC1155DropForm() {
             </div>
           )}
         </div>
-        <div className="flex items-center space-x-3">
-          <Switch
-            id="enable-social-tasks"
-            checked={showSocialTasks}
-            onCheckedChange={setShowSocialTasks}
-          />
-          <Label htmlFor="enable-social-tasks" className="text-base font-medium">
-            Enable social media tasks for this raffle
-          </Label>
-        </div>
-        {showSocialTasks && (
-          <div className="mt-8">
-            <SocialTaskCreator
-              onTasksChange={handleSocialTasksChange}
-              initialTasks={socialTasks}
-              visible={showSocialTasks}
-              onSubmit={(tasks) => {
-                toast.info('Tasks to save: ' + JSON.stringify(tasks, null, 2));
-              }}
-            />
-          </div>
-        )}
         <div className="flex gap-4">
           <Button
             type="submit"
