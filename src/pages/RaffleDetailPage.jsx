@@ -892,9 +892,12 @@ function getRefundability(raffle) {
   return { label: 'Non-winning Tickets Refundable', refundable: true, reason: 'This raffle supports refunds for non-winning tickets.' };
 }
 
-function getExplorerLink(address) {
+// Enhanced getExplorerLink: accepts optional chainId, prefers raffle/app context over window.ethereum
+function getExplorerLink(address, chainIdOverride) {
   let chainId = 1;
-  if (window.ethereum && window.ethereum.chainId) {
+  if (typeof chainIdOverride === 'number') {
+    chainId = chainIdOverride;
+  } else if (window.ethereum && window.ethereum.chainId) {
     chainId = parseInt(window.ethereum.chainId, 16);
   }
   const explorerMap = {
@@ -904,6 +907,7 @@ function getExplorerLink(address) {
     137: 'https://polygonscan.com',
     80001: 'https://mumbai.polygonscan.com',
     10: 'https://optimistic.etherscan.io',
+    420: 'https://goerli-optimism.etherscan.io',
     42161: 'https://arbiscan.io',
     56: 'https://bscscan.com',
     97: 'https://testnet.bscscan.com',
@@ -912,6 +916,7 @@ function getExplorerLink(address) {
     8453: 'https://basescan.org',
     84531: 'https://goerli.basescan.org',
     84532: 'https://sepolia.basescan.org',
+    11155420: 'https://sepolia-optimism.etherscan.io', // OP Sepolia
   };
   const baseUrl = explorerMap[chainId] || explorerMap[1];
   return `${baseUrl}/address/${address}`;
@@ -1885,7 +1890,7 @@ const RaffleDetailPage = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-gray-400">Prize Collection:</span>
                     <a
-                      href={getExplorerLink(raffle.prizeCollection)}
+                      href={getExplorerLink(raffle.prizeCollection, raffle.chainId)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-200"
