@@ -1042,7 +1042,15 @@ const NewERC721DropForm = () => {
     revealType: '0', // 0 = Instant, 1 = Manual, 2 = Scheduled
     unrevealedBaseURI: '',
     revealTime: '',
+    royaltyRecipient: address || '',
   });
+
+  useEffect(() => {
+    if (address && !formData.royaltyRecipient) {
+      setFormData(prev => ({ ...prev, royaltyRecipient: address }));
+    }
+    // eslint-disable-next-line
+  }, [address]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -1091,8 +1099,8 @@ const NewERC721DropForm = () => {
         collectionSymbol: formData.collectionSymbol,
         collectionBaseURI: formData.baseURI,
         creator: address,
-        royaltyPercentage: parseInt(formData.royaltyPercentage || '0'),
-        royaltyRecipient: ethers.constants.AddressZero,
+        royaltyPercentage: formData.royaltyPercentage ? parseInt(formData.royaltyPercentage) * 100 : 0, // percent to bps
+        royaltyRecipient: formData.royaltyRecipient,
         maxSupply: parseInt(formData.maxSupply || formData.winnersCount),
         erc20PrizeToken: ethers.constants.AddressZero,
         erc20PrizeAmount: 0,
@@ -1121,6 +1129,7 @@ const NewERC721DropForm = () => {
           revealType: '0',
           unrevealedBaseURI: '',
           revealTime: '',
+          royaltyRecipient: address || '',
         });
     } catch (error) {
       console.error('Error creating raffle:', error);
@@ -1260,7 +1269,25 @@ const NewERC721DropForm = () => {
                 value={formData.royaltyPercentage || ''}
                 onChange={(e) => handleChange('royaltyPercentage', e.target.value)}
                 className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
+                min="0"
+                max="10"
+                step="0.01"
+                placeholder="e.g. 5 for 5%"
               />
+              <span className="text-xs text-muted-foreground">Enter as a percentage (e.g. 5 for 5%)</span>
+            </div>
+            <div>
+              <label className="block text-base font-medium mb-2">Royalty Recipient</label>
+              <input
+                type="text"
+                value={formData.royaltyRecipient || ''}
+                onChange={e => handleChange('royaltyRecipient', e.target.value)}
+                className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background font-mono"
+                placeholder="0x..."
+                required
+                pattern="^0x[a-fA-F0-9]{40}$"
+              />
+              <span className="text-xs text-muted-foreground">Must be a valid Ethereum address</span>
             </div>
             <div>
               <label className="block text-base font-medium mb-2">Reveal Type</label>
@@ -2859,7 +2886,15 @@ function NewERC1155DropForm() {
     revealType: '0', // 0 = Instant, 1 = Manual, 2 = Scheduled
     unrevealedBaseURI: '',
     revealTime: '',
+    royaltyRecipient: address || '',
   });
+
+  useEffect(() => {
+    if (address && !formData.royaltyRecipient) {
+      setFormData(prev => ({ ...prev, royaltyRecipient: address }));
+    }
+    // eslint-disable-next-line
+  }, [address]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -2908,8 +2943,8 @@ function NewERC1155DropForm() {
         collectionSymbol: formData.collectionSymbol,
         collectionBaseURI: formData.baseURI,
         creator: address,
-        royaltyPercentage: parseInt(formData.royaltyPercentage || '0'),
-        royaltyRecipient: ethers.constants.AddressZero,
+        royaltyPercentage: formData.royaltyPercentage ? parseInt(formData.royaltyPercentage) * 100 : 0, // percent to bps
+        royaltyRecipient: formData.royaltyRecipient,
         maxSupply: parseInt(formData.maxSupply || formData.winnersCount),
         erc20PrizeToken: ethers.constants.AddressZero,
         erc20PrizeAmount: 0,
@@ -2940,6 +2975,7 @@ function NewERC1155DropForm() {
         revealType: '0',
         unrevealedBaseURI: '',
         revealTime: '',
+        royaltyRecipient: address || '',
       });
     } catch (error) {
       console.error('Error creating raffle:', error);
@@ -3099,7 +3135,25 @@ function NewERC1155DropForm() {
                 value={formData.royaltyPercentage || ''}
                 onChange={e => handleChange('royaltyPercentage', e.target.value)}
                 className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
+                min="0"
+                max="10"
+                step="0.01"
+                placeholder="e.g. 5 for 5%"
               />
+              <span className="text-xs text-muted-foreground">Enter as a percentage (e.g. 5 for 5%)</span>
+            </div>
+            <div>
+              <label className="block text-base font-medium mb-2">Royalty Recipient</label>
+              <input
+                type="text"
+                value={formData.royaltyRecipient || ''}
+                onChange={e => handleChange('royaltyRecipient', e.target.value)}
+                className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background font-mono"
+                placeholder="0x..."
+                required
+                pattern="^0x[a-fA-F0-9]{40}$"
+              />
+              <span className="text-xs text-muted-foreground">Must be a valid Ethereum address</span>
             </div>
             <div>
               <label className="block text-base font-medium mb-2">Reveal Type</label>
