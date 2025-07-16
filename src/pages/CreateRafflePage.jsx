@@ -1466,6 +1466,9 @@ function ExistingERC721DropForm() {
     }
   };
 
+  // Helper for internal status check
+  const { status: internalStatus721, checking: checkingInternal721 } = useInternalCollectionStatus(formData.collection, contracts);
+
   return (
     <div className="bg-card border border-border rounded-xl p-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-3 mb-5">
@@ -1494,6 +1497,15 @@ function ExistingERC721DropForm() {
               placeholder="0x..."
               required
             />
+            {formData.collection && !checkingInternal721 && internalStatus721 === true && (
+              <span className="text-xs text-green-600">Internal Collection</span>
+            )}
+            {formData.collection && !checkingInternal721 && internalStatus721 === false && (
+              <span className="text-xs text-red-600">Not internal</span>
+            )}
+            {formData.collection && checkingInternal721 && (
+              <span className="text-xs text-muted-foreground">Checking internal status...</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Start Time</label>
@@ -1674,6 +1686,9 @@ function ExistingERC1155DropForm() {
     }
   };
 
+  // Helper for internal status check
+  const { status: internalStatus1155, checking: checkingInternal1155 } = useInternalCollectionStatus(formData.collectionAddress, contracts);
+
   return (
     <div className="bg-card border border-border rounded-xl p-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-3 mb-5">
@@ -1702,6 +1717,15 @@ function ExistingERC1155DropForm() {
               placeholder="0x..."
               required
             />
+            {formData.collectionAddress && !checkingInternal1155 && internalStatus1155 === true && (
+              <span className="text-xs text-green-600">Internal Collection</span>
+            )}
+            {formData.collectionAddress && !checkingInternal1155 && internalStatus1155 === false && (
+              <span className="text-xs text-red-600">Not internal</span>
+            )}
+            {formData.collectionAddress && checkingInternal1155 && (
+              <span className="text-xs text-muted-foreground">Checking internal status...</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Prize Token ID</label>
@@ -2101,6 +2125,9 @@ function LuckySaleERC721Form() {
     }
   };
 
+  // Helper for whitelist status check
+  const { status: whitelistStatusLucky721, checking: checkingWhitelistLucky721 } = useCollectionWhitelistStatus(formData.collectionAddress, contracts);
+
   return (
     <div className="bg-card border border-border rounded-xl p-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-3 mb-5">
@@ -2129,6 +2156,15 @@ function LuckySaleERC721Form() {
               placeholder="0x..."
               required
             />
+            {formData.collectionAddress && !checkingWhitelistLucky721 && whitelistStatusLucky721 === true && (
+              <span className="text-xs text-green-600">Whitelisted</span>
+            )}
+            {formData.collectionAddress && !checkingWhitelistLucky721 && whitelistStatusLucky721 === false && (
+              <span className="text-xs text-red-600">Not whitelisted</span>
+            )}
+            {formData.collectionAddress && checkingWhitelistLucky721 && (
+              <span className="text-xs text-muted-foreground">Checking whitelist status...</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Prize Token ID</label>
@@ -2335,6 +2371,9 @@ function LuckySaleERC1155Form() {
     }
   };
 
+  // Helper for whitelist status check
+  const { status: whitelistStatusLucky1155, checking: checkingWhitelistLucky1155 } = useCollectionWhitelistStatus(formData.collectionAddress, contracts);
+
   return (
     <div className="bg-card border border-border rounded-xl p-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-3 mb-5">
@@ -2363,6 +2402,15 @@ function LuckySaleERC1155Form() {
               placeholder="0x..."
               required
             />
+            {formData.collectionAddress && !checkingWhitelistLucky1155 && whitelistStatusLucky1155 === true && (
+              <span className="text-xs text-green-600">Whitelisted</span>
+            )}
+            {formData.collectionAddress && !checkingWhitelistLucky1155 && whitelistStatusLucky1155 === false && (
+              <span className="text-xs text-red-600">Not whitelisted</span>
+            )}
+            {formData.collectionAddress && checkingWhitelistLucky1155 && (
+              <span className="text-xs text-muted-foreground">Checking whitelist status...</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Prize Token ID</label>
@@ -3432,5 +3480,59 @@ function useRaffleLimits(contracts, isPrized) {
 // --- Update forms to use the hook and show helper texts ---
 // For each form, call useRaffleLimits(contracts, isPrized) and display helper text under relevant fields.
 // For WhitelistRaffleForm, hardcode maxTicketsPerParticipant to 1 and disable the input.
+
+// Helper for whitelist status check
+function useCollectionWhitelistStatus(address, contracts) {
+  const [status, setStatus] = useState(null); // null | true | false
+  const [checking, setChecking] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    async function check(addr) {
+      if (!contracts?.raffleManager || !addr || addr.length !== 42) {
+        setStatus(null);
+        return;
+      }
+      setChecking(true);
+      try {
+        const isWhite = await contracts.raffleManager.isWhitelisted(addr);
+        if (!cancelled) setStatus(isWhite);
+      } catch {
+        if (!cancelled) setStatus(false);
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    }
+    check(address);
+    return () => { cancelled = true; };
+  }, [address, contracts]);
+  return { status, checking };
+}
+
+// Helper for internal status check
+function useInternalCollectionStatus(address, contracts) {
+  const [status, setStatus] = useState(null); // null | true | false
+  const [checking, setChecking] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    async function check(addr) {
+      if (!contracts?.raffleManager || !addr || addr.length !== 42) {
+        setStatus(null);
+        return;
+      }
+      setChecking(true);
+      try {
+        const isInternal = await contracts.raffleManager.isInternalCollection(addr);
+        if (!cancelled) setStatus(isInternal);
+      } catch {
+        if (!cancelled) setStatus(false);
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    }
+    check(address);
+    return () => { cancelled = true; };
+  }, [address, contracts]);
+  return { status, checking };
+}
 
 export default CreateRafflePage;
