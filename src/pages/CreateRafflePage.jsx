@@ -15,6 +15,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '.
 function ERC1155DropForm() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
+  const limits = useRaffleLimits(contracts, true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -184,6 +185,11 @@ function ERC1155DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minDuration && limits.maxDuration && (
+              <span className="text-xs text-muted-foreground">
+                Min Allowed: {Math.ceil(Number(limits.minDuration)/60)} min, Max Allowed: {Math.floor(Number(limits.maxDuration)/60)} min
+              </span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Ticket Limit</label>
@@ -194,6 +200,9 @@ function ERC1155DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minTicket && limits.maxTicket && (
+              <span className="text-xs text-muted-foreground">Min Allowed: {limits.minTicket}, Max Allowed: {limits.maxTicket}</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Winner Count</label>
@@ -214,6 +223,11 @@ function ERC1155DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {typeof limits.maxTicketsPerParticipant === 'string' && limits.maxTicketsPerParticipant !== '' ? (
+              <span className="text-xs text-muted-foreground">Max Allowed: {limits.maxTicketsPerParticipant}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            )}
           </div>
         </div>
         <div>
@@ -854,6 +868,7 @@ const NonPrizedRaffleForm = () => {
 const WhitelistRaffleForm = () => {
   const { connected, address } = useWallet();
   const { contracts, executeTransaction } = useContract();
+  const limits = useRaffleLimits(contracts, false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -974,6 +989,11 @@ const WhitelistRaffleForm = () => {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minDuration && limits.maxDuration && (
+              <span className="text-xs text-muted-foreground">
+                Min Allowed: {Math.ceil(Number(limits.minDuration)/60)} min, Max Allowed: {Math.floor(Number(limits.maxDuration)/60)} min
+              </span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Ticket Limit</label>
@@ -984,6 +1004,9 @@ const WhitelistRaffleForm = () => {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minTicket && limits.maxTicket && (
+              <span className="text-xs text-muted-foreground">Min Allowed: {limits.minTicket}, Max Allowed: {limits.maxTicket}</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Winner Count</label>
@@ -999,11 +1022,12 @@ const WhitelistRaffleForm = () => {
             <label className="block text-base font-medium mb-2">Max Tickets Per Participant</label>
             <input
               type="number"
-              value={formData.maxTicketsPerParticipant || ''}
-              onChange={(e) => handleChange('maxTicketsPerParticipant', e.target.value)}
+              value={1}
+              disabled
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            <span className="text-xs text-muted-foreground">Only 1 ticket per participant allowed</span>
           </div>
         </div>
 
@@ -1024,6 +1048,7 @@ const WhitelistRaffleForm = () => {
 const NewERC721DropForm = () => {
   const { connected, address, provider } = useWallet();
   const { contracts, executeTransaction } = useContract();
+  const limits = useRaffleLimits(contracts, true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -1176,6 +1201,11 @@ const NewERC721DropForm = () => {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minDuration && limits.maxDuration && (
+              <span className="text-xs text-muted-foreground">
+                Min Allowed: {Math.ceil(Number(limits.minDuration)/60)} min, Max Allowed: {Math.floor(Number(limits.maxDuration)/60)} min
+              </span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Ticket Limit</label>
@@ -1186,6 +1216,9 @@ const NewERC721DropForm = () => {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minTicket && limits.maxTicket && (
+              <span className="text-xs text-muted-foreground">Min Allowed: {limits.minTicket}, Max Allowed: {limits.maxTicket}</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Winner Count</label>
@@ -1206,6 +1239,11 @@ const NewERC721DropForm = () => {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {typeof limits.maxTicketsPerParticipant === 'string' && limits.maxTicketsPerParticipant !== '' ? (
+              <span className="text-xs text-muted-foreground">Max Allowed: {limits.maxTicketsPerParticipant}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Custom Ticket Price (ETH)</label>
@@ -1349,6 +1387,7 @@ const NewERC721DropForm = () => {
 function ExistingERC721DropForm() {
   const { connected, address, provider } = useWallet();
   const { contracts, executeTransaction } = useContract();
+  const limits = useRaffleLimits(contracts, true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -1476,6 +1515,11 @@ function ExistingERC721DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minDuration && limits.maxDuration && (
+              <span className="text-xs text-muted-foreground">
+                Min Allowed: {Math.ceil(Number(limits.minDuration)/60)} min, Max Allowed: {Math.floor(Number(limits.maxDuration)/60)} min
+              </span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Ticket Limit</label>
@@ -1487,12 +1531,14 @@ function ExistingERC721DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minTicket && limits.maxTicket && (
+              <span className="text-xs text-muted-foreground">Min Allowed: {limits.minTicket}, Max Allowed: {limits.maxTicket}</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Winner Count</label>
             <input
               type="number"
-              min="1"
               value={formData.winnersCount || ''}
               onChange={e => handleChange('winnersCount', e.target.value)}
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
@@ -1509,6 +1555,11 @@ function ExistingERC721DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {typeof limits.maxTicketsPerParticipant === 'string' && limits.maxTicketsPerParticipant !== '' ? (
+              <span className="text-xs text-muted-foreground">Max Allowed: {limits.maxTicketsPerParticipant}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            )}
           </div>
         </div>
         <div>
@@ -1540,6 +1591,7 @@ function ExistingERC721DropForm() {
 function ExistingERC1155DropForm() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
+  const limits = useRaffleLimits(contracts, true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -1692,6 +1744,11 @@ function ExistingERC1155DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minDuration && limits.maxDuration && (
+              <span className="text-xs text-muted-foreground">
+                Min Allowed: {Math.ceil(Number(limits.minDuration)/60)} min, Max Allowed: {Math.floor(Number(limits.maxDuration)/60)} min
+              </span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Ticket Limit</label>
@@ -1702,6 +1759,9 @@ function ExistingERC1155DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minTicket && limits.maxTicket && (
+              <span className="text-xs text-muted-foreground">Min Allowed: {limits.minTicket}, Max Allowed: {limits.maxTicket}</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Winners Count</label>
@@ -1722,6 +1782,11 @@ function ExistingERC1155DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {typeof limits.maxTicketsPerParticipant === 'string' && limits.maxTicketsPerParticipant !== '' ? (
+              <span className="text-xs text-muted-foreground">Max Allowed: {limits.maxTicketsPerParticipant}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Custom Ticket Price (ETH)</label>
@@ -1938,6 +2003,7 @@ const CreateRafflePage = () => {
 function LuckySaleERC721Form() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
+  const limits = useRaffleLimits(contracts, true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -2094,6 +2160,11 @@ function LuckySaleERC721Form() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minDuration && limits.maxDuration && (
+              <span className="text-xs text-muted-foreground">
+                Min Allowed: {Math.ceil(Number(limits.minDuration)/60)} min, Max Allowed: {Math.floor(Number(limits.maxDuration)/60)} min
+              </span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Ticket Limit</label>
@@ -2104,6 +2175,9 @@ function LuckySaleERC721Form() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minTicket && limits.maxTicket && (
+              <span className="text-xs text-muted-foreground">Min Allowed: {limits.minTicket}, Max Allowed: {limits.maxTicket}</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Winner Count</label>
@@ -2124,6 +2198,11 @@ function LuckySaleERC721Form() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {typeof limits.maxTicketsPerParticipant === 'string' && limits.maxTicketsPerParticipant !== '' ? (
+              <span className="text-xs text-muted-foreground">Max Allowed: {limits.maxTicketsPerParticipant}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            )}
           </div>
         </div>
         <div>
@@ -2156,6 +2235,7 @@ function LuckySaleERC721Form() {
 function LuckySaleERC1155Form() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
+  const limits = useRaffleLimits(contracts, true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -2325,6 +2405,11 @@ function LuckySaleERC1155Form() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minDuration && limits.maxDuration && (
+              <span className="text-xs text-muted-foreground">
+                Min Allowed: {Math.ceil(Number(limits.minDuration)/60)} min, Max Allowed: {Math.floor(Number(limits.maxDuration)/60)} min
+              </span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Ticket Limit</label>
@@ -2335,6 +2420,9 @@ function LuckySaleERC1155Form() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minTicket && limits.maxTicket && (
+              <span className="text-xs text-muted-foreground">Min Allowed: {limits.minTicket}, Max Allowed: {limits.maxTicket}</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Winner Count</label>
@@ -2355,6 +2443,11 @@ function LuckySaleERC1155Form() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {typeof limits.maxTicketsPerParticipant === 'string' && limits.maxTicketsPerParticipant !== '' ? (
+              <span className="text-xs text-muted-foreground">Max Allowed: {limits.maxTicketsPerParticipant}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            )}
           </div>
         </div>
         <div>
@@ -2387,6 +2480,7 @@ function LuckySaleERC1155Form() {
 function ETHGiveawayForm() {
   const { connected, address, provider } = useWallet();
   const { contracts, executeTransaction } = useContract();
+  const limits = useRaffleLimits(contracts, true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -2521,6 +2615,11 @@ function ETHGiveawayForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minDuration && limits.maxDuration && (
+              <span className="text-xs text-muted-foreground">
+                Min Allowed: {Math.ceil(Number(limits.minDuration)/60)} min, Max Allowed: {Math.floor(Number(limits.maxDuration)/60)} min
+              </span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Ticket Limit</label>
@@ -2531,6 +2630,9 @@ function ETHGiveawayForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minTicket && limits.maxTicket && (
+              <span className="text-xs text-muted-foreground">Min Allowed: {limits.minTicket}, Max Allowed: {limits.maxTicket}</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Winner Count</label>
@@ -2551,6 +2653,11 @@ function ETHGiveawayForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {typeof limits.maxTicketsPerParticipant === 'string' && limits.maxTicketsPerParticipant !== '' ? (
+              <span className="text-xs text-muted-foreground">Max Allowed: {limits.maxTicketsPerParticipant}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            )}
           </div>
         </div>
         <div className="flex gap-4">
@@ -2571,6 +2678,7 @@ function ETHGiveawayForm() {
 function ERC20GiveawayForm() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
+  const limits = useRaffleLimits(contracts, true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -2582,6 +2690,29 @@ function ERC20GiveawayForm() {
     winnersCount: '',
     maxTicketsPerParticipant: ''
   });
+  const [whitelistStatus, setWhitelistStatus] = useState(null); // null | true | false
+  const [checkingWhitelist, setCheckingWhitelist] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function checkWhitelist(addr) {
+      if (!contracts?.raffleManager || !addr || addr.length !== 42) {
+        setWhitelistStatus(null);
+        return;
+      }
+      setCheckingWhitelist(true);
+      try {
+        const isWhitelisted = await contracts.raffleManager.isERC20PrizeWhitelisted(addr);
+        if (!cancelled) setWhitelistStatus(isWhitelisted);
+      } catch {
+        if (!cancelled) setWhitelistStatus(false);
+      } finally {
+        if (!cancelled) setCheckingWhitelist(false);
+      }
+    }
+    checkWhitelist(formData.tokenAddress);
+    return () => { cancelled = true; };
+  }, [formData.tokenAddress, contracts]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -2695,6 +2826,15 @@ function ERC20GiveawayForm() {
               placeholder="0x..."
               required
             />
+            {formData.tokenAddress && !checkingWhitelist && whitelistStatus === true && (
+              <span className="text-xs text-green-600">Whitelisted</span>
+            )}
+            {formData.tokenAddress && !checkingWhitelist && whitelistStatus === false && (
+              <span className="text-xs text-red-600">Not whitelisted</span>
+            )}
+            {formData.tokenAddress && checkingWhitelist && (
+              <span className="text-xs text-muted-foreground">Checking whitelist status...</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Total Token Amount</label>
@@ -2727,6 +2867,11 @@ function ERC20GiveawayForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minDuration && limits.maxDuration && (
+              <span className="text-xs text-muted-foreground">
+                Min Allowed: {Math.ceil(Number(limits.minDuration)/60)} min, Max Allowed: {Math.floor(Number(limits.maxDuration)/60)} min
+              </span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Ticket Limit</label>
@@ -2737,6 +2882,9 @@ function ERC20GiveawayForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minTicket && limits.maxTicket && (
+              <span className="text-xs text-muted-foreground">Min Allowed: {limits.minTicket}, Max Allowed: {limits.maxTicket}</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Winner Count</label>
@@ -2757,6 +2905,11 @@ function ERC20GiveawayForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {typeof limits.maxTicketsPerParticipant === 'string' && limits.maxTicketsPerParticipant !== '' ? (
+              <span className="text-xs text-muted-foreground">Max Allowed: {limits.maxTicketsPerParticipant}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            )}
           </div>
         </div>
         <div className="flex gap-4">
@@ -2866,6 +3019,7 @@ function extractRevertReason(error) {
 function NewERC1155DropForm() {
   const { connected, address, provider } = useWallet();
   const { contracts } = useContract();
+  const limits = useRaffleLimits(contracts, true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -3022,6 +3176,11 @@ function NewERC1155DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minDuration && limits.maxDuration && (
+              <span className="text-xs text-muted-foreground">
+                Min Allowed: {Math.ceil(Number(limits.minDuration)/60)} min, Max Allowed: {Math.floor(Number(limits.maxDuration)/60)} min
+              </span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Ticket Limit</label>
@@ -3032,6 +3191,9 @@ function NewERC1155DropForm() {
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {limits.minTicket && limits.maxTicket && (
+              <span className="text-xs text-muted-foreground">Min Allowed: {limits.minTicket}, Max Allowed: {limits.maxTicket}</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Winners Count</label>
@@ -3048,10 +3210,16 @@ function NewERC1155DropForm() {
             <input
               type="number"
               value={formData.maxTicketsPerParticipant || ''}
-              onChange={e => handleChange('maxTicketsPerParticipant', e.target.value)}
+              onChange={(e) => handleChange('maxTicketsPerParticipant', e.target.value)}
               className="w-full px-3 py-2.5 text-base border border-border rounded-lg bg-background"
               required
             />
+            {(() => { console.log('maxTicketsPerParticipant limit:', limits.maxTicketsPerParticipant); return null; })()}
+            {typeof limits.maxTicketsPerParticipant === 'string' && limits.maxTicketsPerParticipant !== '' ? (
+              <span className="text-xs text-muted-foreground">Max Allowed: {limits.maxTicketsPerParticipant}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Loading...</span>
+            )}
           </div>
           <div>
             <label className="block text-base font-medium mb-2">Custom Ticket Price (ETH)</label>
@@ -3211,5 +3379,58 @@ function NewERC1155DropForm() {
     </div>
   );
 }
+
+// Add a utility hook to fetch limits from RaffleManager
+function useRaffleLimits(contracts, isPrized) {
+  const [limits, setLimits] = useState({
+    minTicket: undefined,
+    maxTicket: undefined,
+    minDuration: undefined,
+    maxDuration: undefined,
+    maxTicketsPerParticipant: undefined,
+  });
+  useEffect(() => {
+    if (!contracts?.raffleManager) return;
+    async function fetchLimits() {
+      try {
+        if (isPrized) {
+          const [ticketLimits, durationLimits, maxTickets] = await Promise.all([
+            contracts.raffleManager.getAllTicketLimits(),
+            contracts.raffleManager.getDurationLimits(),
+            contracts.raffleManager.getMaxTicketsPerParticipant()
+          ]);
+          setLimits({
+            minTicket: ticketLimits.minPrized?.toString(),
+            maxTicket: ticketLimits.max?.toString(),
+            minDuration: durationLimits.min?.toString(),
+            maxDuration: durationLimits.max?.toString(),
+            maxTicketsPerParticipant: maxTickets?.toString(),
+          });
+        } else {
+          const [ticketLimits, durationLimits, maxTickets] = await Promise.all([
+            contracts.raffleManager.getAllTicketLimits(),
+            contracts.raffleManager.getDurationLimits(),
+            contracts.raffleManager.maxTicketsPerParticipant()
+          ]);
+          setLimits({
+            minTicket: ticketLimits.minNonPrized?.toString(),
+            maxTicket: ticketLimits.max?.toString(),
+            minDuration: durationLimits.min?.toString(),
+            maxDuration: durationLimits.max?.toString(),
+            maxTicketsPerParticipant: maxTickets?.toString(),
+          });
+        }
+      } catch (e) {
+        // fallback: do nothing
+      }
+    }
+    fetchLimits();
+  }, [contracts, isPrized]);
+  return limits;
+}
+
+// --- Update forms to use the hook and show helper texts ---
+// For each form, call useRaffleLimits(contracts, isPrized) and display helper text under relevant fields.
+// For WhitelistRaffleForm, hardcode maxTicketsPerParticipant to 1 and disable the input.
 
 export default CreateRafflePage;
