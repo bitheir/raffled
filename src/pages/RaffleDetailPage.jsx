@@ -199,7 +199,7 @@ const TicketPurchaseSection = ({ raffle, onPurchase, timeRemaining, winners, sho
   const canClaimRefund = () => {
     return (
       raffle.isPrized &&
-      (raffle.stateNum === 4 || raffle.stateNum === 7) &&
+      (raffle.stateNum === 4 || raffle.stateNum === 7 || raffle.stateNum === 8) &&
       refundableAmount && refundableAmount.gt && refundableAmount.gt(0)
     );
   };
@@ -252,7 +252,7 @@ const TicketPurchaseSection = ({ raffle, onPurchase, timeRemaining, winners, sho
           <div></div>
           </div>
 
-        {(raffle.stateNum === 4 || raffle.stateNum === 7) ? (
+        {(raffle.stateNum === 4 || raffle.stateNum === 7 || raffle.stateNum === 8) ? (
           (canClaimPrize() || canClaimRefund()) ? (
             <div className="flex flex-col sm:flex-row gap-2 w-full">
               {canClaimPrize() && (
